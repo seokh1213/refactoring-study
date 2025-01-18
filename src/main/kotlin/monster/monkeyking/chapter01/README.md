@@ -1,5 +1,12 @@
 # Chapter 01 - 리팩터링: 첫번째 예시
 
+## 요약
+> 1. 테스트 코드 작성
+> 2. 큰 덩어리를 함수로 작게 추출
+>   - 변수 인라인 하기
+>   - 변수명 역할을 포함하여 변경
+> 3. 
+
 ## 원본 코드
 
 ```kotlin
@@ -187,9 +194,79 @@ val play = playFor(perf)
 val thisAmount = amountFor(perf, play)
 ```
 
-- 변수 인라인하기
+- 변수 인라인하기 (책에서는 좀 더 과격하게 도입. README에는 생략)
 
 ```kotlin
 val thisAmount = amountFor(perf, playFor(perf))
+```
+
+- 중간 결과
+
+```kotlin
+typealias Plays = Map<String, Play>
+
+data class Play(
+    val name: String,
+    val type: String
+)
+
+data class Performance(
+    val playID: String,
+    val audience: Int
+)
+
+data class Invoice(
+    val customer: String,
+    val performances: List<Performance>
+)
+
+fun statement(invoice: Invoice, plays: Plays): String {
+    var totalAmount = 0
+    var volumeCredits = 0
+    var result = "청구 내역 (고객명: ${invoice.customer})\n"
+    val format = { amount: Int -> "$${amount / 100}.00" }
+
+    fun playFor(aPerformance: Performance): Play {
+        return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+    }
+
+    fun amountFor(aPerformance: Performance): Int {
+        var result = 0
+        when (playFor(aPerformance).type) {
+            "tragedy" -> {
+                result = 40000
+                if (aPerformance.audience > 30) {
+                    result += 1000 * (aPerformance.audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30000
+                if (aPerformance.audience > 20) {
+                    result += 10000 + 500 * (aPerformance.audience - 20)
+                }
+                result += 300 * aPerformance.audience
+            }
+
+            else -> error("알 수 없는 장르: ${playFor(aPerformance).type}")
+        }
+        return result
+    }
+
+    for (perf in invoice.performances) {
+        // 포인트를 적립한다.
+        volumeCredits += maxOf(perf.audience - 30, 0)
+        // 희극 관객 5명마다 추가 포인트를 적립한다.
+        if ("comedy" == playFor(perf).type) volumeCredits += perf.audience / 5
+
+        // 청구 내역을 출력한다.
+        result += "  ${playFor(perf).name}: ${format(amountFor(perf))} (${perf.audience}석)\n"
+        totalAmount += amountFor(perf)
+    }
+
+    result += "총액: ${format(totalAmount)}\n"
+    result += "적립 포인트: $volumeCredits 점\n"
+    return result
+}
 ```
 

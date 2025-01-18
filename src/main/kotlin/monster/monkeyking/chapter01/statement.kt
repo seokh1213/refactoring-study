@@ -50,11 +50,16 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return result
     }
 
+    fun volumeCreditsFor(aPerformance: Performance): Int {
+        var result = 0
+        result += maxOf(aPerformance.audience - 30, 0)
+        if ("comedy" == playFor(aPerformance).type) result += aPerformance.audience / 5
+        return result
+    }
+
     for (perf in invoice.performances) {
         // 포인트를 적립한다.
-        volumeCredits += maxOf(perf.audience - 30, 0)
-        // 희극 관객 5명마다 추가 포인트를 적립한다.
-        if ("comedy" == playFor(perf).type) volumeCredits += perf.audience / 5
+        volumeCredits += volumeCreditsFor(perf)
 
         // 청구 내역을 출력한다.
         result += "  ${playFor(perf).name}: ${format(amountFor(perf))} (${perf.audience}석)\n"
