@@ -380,3 +380,5 @@ fun statement(invoice: Invoice, plays: Plays): String {
 
 ### 반복문을 파이프라인으로 바꾸기 (함수형 프로그래밍)
 
+### 조건부 로직을 다형성으로 바꾸기
+
