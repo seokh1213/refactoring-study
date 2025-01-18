@@ -63,10 +63,15 @@ fun statement(invoice: Invoice, plays: Plays): String {
         result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
     }
 
-    var totalAmount = 0
-    for (perf in invoice.performances) {
-        totalAmount += amountFor(perf)
+    fun totalAmount(): Int {
+        var totalAmount = 0
+        for (perf in invoice.performances) {
+            totalAmount += amountFor(perf)
+        }
+        return totalAmount
     }
+
+    var totalAmount = totalAmount()
 
     fun totalVolumeCredits(): Int {
         var volumeCredits = 0
