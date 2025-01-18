@@ -1,7 +1,5 @@
 package monster.monkeyking.chapter01
 
-import javax.naming.OperationNotSupportedException
-
 fun createPerformanceCalculator(
     aPerformance: Performance,
     play: Play
@@ -13,8 +11,7 @@ fun createPerformanceCalculator(
     }
 }
 
-class TragedyCalculator(private val aPerformance: Performance, private val play: Play) :
-    PerformanceCalculator(aPerformance, play) {
+class TragedyCalculator(private val aPerformance: Performance, private val play: Play) : PerformanceCalculator {
     override val amount: Int
         get() {
             var result = 40000
@@ -29,8 +26,7 @@ class TragedyCalculator(private val aPerformance: Performance, private val play:
         }
 }
 
-class ComedyCalculator(private val aPerformance: Performance, private val play: Play) :
-    PerformanceCalculator(aPerformance, play) {
+class ComedyCalculator(private val aPerformance: Performance, private val play: Play) : PerformanceCalculator {
 
     override val amount: Int
         get() {
@@ -48,31 +44,9 @@ class ComedyCalculator(private val aPerformance: Performance, private val play: 
         }
 }
 
-open class PerformanceCalculator(
-    private val aPerformance: Performance,
-    private val play: Play
-) {
-    open val amount: Int
-        get() {
-            var result = 0
-            when (play.type) {
-                "tragedy" -> {
-                    throw OperationNotSupportedException("오류 발생")
-                }
-
-                "comedy" -> {
-                    throw OperationNotSupportedException("오류 발생")
-                }
-
-                else -> error("알 수 없는 장르: ${play.type}")
-            }
-            return result
-        }
-    open val volumeCredits: Int
-        get() {
-            throw OperationNotSupportedException("오류 발생")
-        }
-
+interface PerformanceCalculator {
+    val amount: Int
+    val volumeCredits: Int
 }
 
 fun createStatementData(
