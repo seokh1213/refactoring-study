@@ -18,6 +18,10 @@ data class Invoice(
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
+    return renderPlainText(invoice, plays)
+}
+
+private fun renderPlainText(invoice: Invoice, plays: Plays): String {
     fun usd(aNumber: Int): String {
         return "$${aNumber / 100}.00"
     }

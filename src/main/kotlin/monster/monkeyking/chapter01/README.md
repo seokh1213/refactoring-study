@@ -2,12 +2,19 @@
 
 ## 요약
 > 1. 테스트 코드 작성
-> 2. 큰 덩어리를 함수로 작게 추출
+> 2. 기능 파악을 위해, 큰 덩어리를 함수로 작게 추출
 >   - 변수 인라인 하기
 >   - 변수명 역할을 포함하여 변경
-> 3. 
+>   - 반복문 리팩터링
+>         1. 반복문 책임에 따라 분리하기
+>              - 반복문을 여러번에 나눠서 실행하면 성능 저하가 발생할거라 생각하지만, 실제로는 미비하고 유지보수의 장점이 더 커진다.
+>         2. 지역 변수 선언 위치 옮기기
+>         3. 함수로 분리
+>         4. 변수 인라인하기
+> 3. 기능 개선 
+>     - 단계 쪼개기 (책임 분리하기)
 
-## 원본 코드
+## 최초 코드
 
 ```kotlin
 typealias Plays = Map<String, Play>
@@ -276,3 +283,97 @@ fun statement(invoice: Invoice, plays: Plays): String {
 2. 지역 변수 선언 위치 옮기기
 3. 함수로 분리
 4. 변수 인라인하기
+
+## 중간 결과
+```kotlin
+
+typealias Plays = Map<String, Play>
+
+data class Play(
+    val name: String,
+    val type: String
+)
+
+data class Performance(
+    val playID: String,
+    val audience: Int
+)
+
+data class Invoice(
+    val customer: String,
+    val performances: List<Performance>
+)
+
+fun statement(invoice: Invoice, plays: Plays): String {
+    fun usd(aNumber: Int): String {
+        return "$${aNumber / 100}.00"
+    }
+
+    fun playFor(aPerformance: Performance): Play {
+        return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+    }
+
+    fun amountFor(aPerformance: Performance): Int {
+        var result = 0
+        when (playFor(aPerformance).type) {
+            "tragedy" -> {
+                result = 40000
+                if (aPerformance.audience > 30) {
+                    result += 1000 * (aPerformance.audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30000
+                if (aPerformance.audience > 20) {
+                    result += 10000 + 500 * (aPerformance.audience - 20)
+                }
+                result += 300 * aPerformance.audience
+            }
+
+            else -> error("알 수 없는 장르: ${playFor(aPerformance).type}")
+        }
+        return result
+    }
+
+    fun volumeCreditsFor(aPerformance: Performance): Int {
+        var result = 0
+        result += maxOf(aPerformance.audience - 30, 0)
+        if ("comedy" == playFor(aPerformance).type) result += aPerformance.audience / 5
+        return result
+    }
+
+    fun totalAmount(): Int {
+        var totalAmount = 0
+        for (perf in invoice.performances) {
+            totalAmount += amountFor(perf)
+        }
+        return totalAmount
+    }
+
+    fun totalVolumeCredits(): Int {
+        var result = 0
+        for (perf in invoice.performances) {
+            // 포인트를 적립한다.
+            result += volumeCreditsFor(perf)
+        }
+        return result
+    }
+
+    var result = "청구 내역 (고객명: ${invoice.customer})\n"
+    for (perf in invoice.performances) {
+        // 청구 내역을 출력한다.
+        result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
+    }
+    result += "총액: ${usd(totalAmount())}\n"
+    result += "적립 포인트: ${totalVolumeCredits()} 점\n"
+    return result
+}
+```
+- 중첩 함수 난무 하지만 statement의 하고자 하는 흐름을 보기는 쉬워졌다.
+
+## 기능 개선
+결과 출력을 단순 문자열에서 HTML 형태로 출력하도록 변경
+
+### 단계 쪼개기 (책임 분리하기)
+데이터 처리 -> HTML 출력
