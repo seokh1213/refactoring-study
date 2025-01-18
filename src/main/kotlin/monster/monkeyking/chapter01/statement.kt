@@ -23,9 +23,13 @@ fun statement(invoice: Invoice, plays: Plays): String {
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
     val format = { amount: Int -> "$${amount / 100}.00" }
 
-    fun amountFor(aPerformance: Performance, play: Play): Int {
+    fun playFor(aPerformance: Performance): Play {
+        return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+    }
+
+    fun amountFor(aPerformance: Performance): Int {
         var result = 0
-        when (play.type) {
+        when (playFor(aPerformance).type) {
             "tragedy" -> {
                 result = 40000
                 if (aPerformance.audience > 30) {
@@ -41,17 +45,13 @@ fun statement(invoice: Invoice, plays: Plays): String {
                 result += 300 * aPerformance.audience
             }
 
-            else -> error("알 수 없는 장르: ${play.type}")
+            else -> error("알 수 없는 장르: ${playFor(aPerformance).type}")
         }
         return result
     }
 
-    fun playFor(aPerformance: Performance): Play {
-        return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
-    }
-
     for (perf in invoice.performances) {
-        val thisAmount = amountFor(perf, playFor(perf))
+        val thisAmount = amountFor(perf)
 
         // 포인트를 적립한다.
         volumeCredits += maxOf(perf.audience - 30, 0)
