@@ -18,8 +18,6 @@ data class Invoice(
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    var result = "청구 내역 (고객명: ${invoice.customer})\n"
-
     fun usd(aNumber: Int): String {
         return "$${aNumber / 100}.00"
     }
@@ -58,17 +56,12 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return result
     }
 
-    for (perf in invoice.performances) {
-        // 청구 내역을 출력한다.
-        result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
-    }
-
     fun totalAmount(): Int {
-        var result = 0
+        var totalAmount = 0
         for (perf in invoice.performances) {
-            result += amountFor(perf)
+            totalAmount += amountFor(perf)
         }
-        return result
+        return totalAmount
     }
 
     fun totalVolumeCredits(): Int {
@@ -80,6 +73,11 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return result
     }
 
+    var result = "청구 내역 (고객명: ${invoice.customer})\n"
+    for (perf in invoice.performances) {
+        // 청구 내역을 출력한다.
+        result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
+    }
     result += "총액: ${usd(totalAmount())}\n"
     result += "적립 포인트: ${totalVolumeCredits()} 점\n"
     return result
