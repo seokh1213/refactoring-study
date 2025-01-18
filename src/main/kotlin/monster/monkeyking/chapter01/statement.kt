@@ -32,7 +32,8 @@ data class Invoice(
 data class StatementData(
     val customer: String,
     val performances: List<PerformanceContext>,
-    val plays: Plays
+    val totalAmount: Int,
+    val totalVolumeCredits: Int,
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
@@ -70,6 +71,23 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return result
     }
 
+    fun totalAmount(data: List<PerformanceContext>): Int {
+        var totalAmount = 0
+        for (perf in data) {
+            totalAmount += perf.amount
+        }
+        return totalAmount
+    }
+
+    fun totalVolumeCredits(data: List<PerformanceContext>): Int {
+        var result = 0
+        for (perf in data) {
+            // 포인트를 적립한다.
+            result += perf.volumeCredits
+        }
+        return result
+    }
+
     fun enrichPerformance(aPerformance: Performance): PerformanceContext {
         val aPerformanceEnriched = PerformanceEnriched(
             play = playFor(aPerformance),
@@ -87,7 +105,8 @@ fun statement(invoice: Invoice, plays: Plays): String {
     val statementData = StatementData(
         customer = invoice.customer,
         performances = invoice.performances.map { enrichPerformance(it) },
-        plays = plays
+        totalAmount = totalAmount(invoice.performances.map { enrichPerformance(it) }),
+        totalVolumeCredits = totalVolumeCredits(invoice.performances.map { enrichPerformance(it) })
     )
     return renderPlainText(statementData)
 }
@@ -97,29 +116,12 @@ private fun renderPlainText(data: StatementData): String {
         return "$${aNumber / 100}.00"
     }
 
-    fun totalAmount(): Int {
-        var totalAmount = 0
-        for (perf in data.performances) {
-            totalAmount += perf.amount
-        }
-        return totalAmount
-    }
-
-    fun totalVolumeCredits(): Int {
-        var result = 0
-        for (perf in data.performances) {
-            // 포인트를 적립한다.
-            result += perf.volumeCredits
-        }
-        return result
-    }
-
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
         // 청구 내역을 출력한다.
         result += "  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n"
     }
-    result += "총액: ${usd(totalAmount())}\n"
-    result += "적립 포인트: ${totalVolumeCredits()} 점\n"
+    result += "총액: ${usd(data.totalAmount)}\n"
+    result += "적립 포인트: ${data.totalVolumeCredits} 점\n"
     return result
 }
