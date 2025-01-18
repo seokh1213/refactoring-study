@@ -26,10 +26,10 @@ class StatementTest {
         assertEquals(
             """
                 청구 내역 (고객명: BigCo)
-                  Hamlet: ${'$'}650.00 (55석)
-                  As You Like It: ${'$'}580.00 (35석)
-                  Othello: ${'$'}500.00 (40석)
-                총액: ${'$'}1730.00
+                  Hamlet: $650.00 (55석)
+                  As You Like It: $580.00 (35석)
+                  Othello: $500.00 (40석)
+                총액: $1730.00
                 적립 포인트: 47 점
             """.trimIndent(),
             statement(invoice, plays).trimIndent()
