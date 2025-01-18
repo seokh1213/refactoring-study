@@ -1,10 +1,9 @@
 # Chapter 01 - 리팩터링: 첫번째 예시
 
 ## 원본 코드
+
 ```kotlin
-data class Plays(
-    val plays: Map<String, Play>
-)
+typealias Plays = Map<String, Play>
 
 data class Play(
     val name: String,
@@ -21,14 +20,14 @@ data class Invoice(
     val performances: List<Performance>
 )
 
-fun statement(invoice: Invoice, plays: Plays ): String {
+fun statement(invoice: Invoice, plays: Plays): String {
     var totalAmount = 0
     var volumeCredits = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
     val format = { amount: Int -> "$${amount / 100}.00" }
 
     for (perf in invoice.performances) {
-        val play = plays.plays[perf.playID] ?: error("알 수 없는 장르: ${perf.playID}")
+        val play = plays[perf.playID] ?: error("알 수 없는 장르: ${perf.playID}")
         var thisAmount = 0
 
         when (play.type) {
@@ -64,13 +63,12 @@ fun statement(invoice: Invoice, plays: Plays ): String {
 }
 
 fun main() {
-    val plays = Plays(
-        mapOf(
-            "hamlet" to Play("Hamlet", "tragedy"),
-            "as-like" to Play("As You Like It", "comedy"),
-            "othello" to Play("Othello", "tragedy")
-        )
+    val plays = mapOf(
+        "hamlet" to Play("Hamlet", "tragedy"),
+        "as-like" to Play("As You Like It", "comedy"),
+        "othello" to Play("Othello", "tragedy")
     )
+
 
     val invoice = Invoice(
         "BigCo",
@@ -87,15 +85,16 @@ fun main() {
 
 ## 자 시작해보자
 
-> 프로그램이 새로운 기능을 추가하기에 편한 구조가 아니라면 먼저 기능을 추가하기 쉬운 형태로 리팩터링하고 나서 원하는 기능을 추가하라. 
-
+> 프로그램이 새로운 기능을 추가하기에 편한 구조가 아니라면 먼저 기능을 추가하기 쉬운 형태로 리팩터링하고 나서 원하는 기능을 추가하라.
 
 ## 리팩터링의 첫 단계 ⭐️
+
 > ⭐️ 리팩터링하기 전에 제대로 된 테스트부터 마련한다. 테스트는 반드시 자가진단하도록 만든다.
 
 ### statement() 함수 쪼개기
 
 #### 1. when 절 분리
+
 amountFor(perf: Performance) 함수로 추출
 
 ```kotlin
@@ -122,10 +121,11 @@ fun amountFor(perf: Performance, play: Play): Int {
 ```
 
 > 리팩터링은 프로그램 수정을 작은 단계로 나눠 진행한다. 그래서 중간에 실수하더라도 버그를 쉽게 찾을 수 있다.
-> 
+>
 > "이렇게 수정하고 나면 곧바로 컴파일하고 테스트해서 실수한 게 없는지 확인한다. 문제가 없으면 커밋 한다."
 
 #### 2. 변수명 변경
+
 - thisAmount -> result로 변경
 
 ```kotlin
@@ -177,17 +177,19 @@ fun amountFor(aPerformance: Performance, play: Play): Int {
 ```
 
 - play 조회 함수 분리
+
 ```kotlin
-fun Plays.playFor(aPerformance: Performance): Play {
-    return this[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+fun playFor(aPerformance: Performance): Play {
+    return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
 }
 
-val play = plays.playFor(perf)
+val play = playFor(perf)
 val thisAmount = amountFor(perf, play)
 ```
 
 - 변수 인라인하기
+
 ```kotlin
-val thisAmount = amountFor(perf, plays.playFor(perf))
+val thisAmount = amountFor(perf, playFor(perf))
 ```
 
