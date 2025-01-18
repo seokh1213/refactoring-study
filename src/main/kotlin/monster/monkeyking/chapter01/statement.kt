@@ -17,11 +17,22 @@ data class Invoice(
     val performances: List<Performance>
 )
 
+data class StatementData(
+    val customer: String,
+    val performances: List<Performance>,
+    val plays: Plays
+)
+
 fun statement(invoice: Invoice, plays: Plays): String {
-    return renderPlainText(invoice, plays)
+    val statementData = StatementData(
+        customer = invoice.customer,
+        performances = invoice.performances,
+        plays = plays
+    )
+    return renderPlainText(statementData, plays)
 }
 
-private fun renderPlainText(invoice: Invoice, plays: Plays): String {
+private fun renderPlainText(data: StatementData, plays: Plays): String {
     fun usd(aNumber: Int): String {
         return "$${aNumber / 100}.00"
     }
@@ -62,7 +73,7 @@ private fun renderPlainText(invoice: Invoice, plays: Plays): String {
 
     fun totalAmount(): Int {
         var totalAmount = 0
-        for (perf in invoice.performances) {
+        for (perf in data.performances) {
             totalAmount += amountFor(perf)
         }
         return totalAmount
@@ -70,15 +81,15 @@ private fun renderPlainText(invoice: Invoice, plays: Plays): String {
 
     fun totalVolumeCredits(): Int {
         var result = 0
-        for (perf in invoice.performances) {
+        for (perf in data.performances) {
             // 포인트를 적립한다.
             result += volumeCreditsFor(perf)
         }
         return result
     }
 
-    var result = "청구 내역 (고객명: ${invoice.customer})\n"
-    for (perf in invoice.performances) {
+    var result = "청구 내역 (고객명: ${data.customer})\n"
+    for (perf in data.performances) {
         // 청구 내역을 출력한다.
         result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
     }
