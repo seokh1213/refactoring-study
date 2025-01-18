@@ -14,7 +14,8 @@ data class Performance(
 
 data class PerformanceEnriched(
     val play: Play,
-    val audience: Int
+    val audience: Int,
+    val amount: Int,
 )
 
 data class Invoice(
@@ -33,10 +34,34 @@ fun statement(invoice: Invoice, plays: Plays): String {
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
     }
 
+    fun amountFor(play: Play, audience: Int): Int {
+        var result = 0
+        when (play.type) {
+            "tragedy" -> {
+                result = 40000
+                if (audience > 30) {
+                    result += 1000 * (audience - 30)
+                }
+            }
+
+            "comedy" -> {
+                result = 30000
+                if (audience > 20) {
+                    result += 10000 + 500 * (audience - 20)
+                }
+                result += 300 * audience
+            }
+
+            else -> error("알 수 없는 장르: ${play.type}")
+        }
+        return result
+    }
+
     fun enrichPerformance(aPerformance: Performance): PerformanceEnriched {
         return PerformanceEnriched(
             play = playFor(aPerformance),
-            audience = aPerformance.audience
+            audience = aPerformance.audience,
+            amount = amountFor(playFor(aPerformance), aPerformance.audience)
         )
     }
 
@@ -53,29 +78,6 @@ private fun renderPlainText(data: StatementData): String {
         return "$${aNumber / 100}.00"
     }
 
-    fun amountFor(aPerformance: PerformanceEnriched): Int {
-        var result = 0
-        when (aPerformance.play.type) {
-            "tragedy" -> {
-                result = 40000
-                if (aPerformance.audience > 30) {
-                    result += 1000 * (aPerformance.audience - 30)
-                }
-            }
-
-            "comedy" -> {
-                result = 30000
-                if (aPerformance.audience > 20) {
-                    result += 10000 + 500 * (aPerformance.audience - 20)
-                }
-                result += 300 * aPerformance.audience
-            }
-
-            else -> error("알 수 없는 장르: ${aPerformance.play.type}")
-        }
-        return result
-    }
-
     fun volumeCreditsFor(aPerformance: PerformanceEnriched): Int {
         var result = 0
         result += maxOf(aPerformance.audience - 30, 0)
@@ -86,7 +88,7 @@ private fun renderPlainText(data: StatementData): String {
     fun totalAmount(): Int {
         var totalAmount = 0
         for (perf in data.performances) {
-            totalAmount += amountFor(perf)
+            totalAmount += perf.amount
         }
         return totalAmount
     }
@@ -103,7 +105,7 @@ private fun renderPlainText(data: StatementData): String {
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
         // 청구 내역을 출력한다.
-        result += "  ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
+        result += "  ${perf.play.name}: ${usd(perf.amount)} (${perf.audience}석)\n"
     }
     result += "총액: ${usd(totalAmount())}\n"
     result += "적립 포인트: ${totalVolumeCredits()} 점\n"
