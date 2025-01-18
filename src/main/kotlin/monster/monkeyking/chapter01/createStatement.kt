@@ -5,13 +5,13 @@ fun createPerformanceCalculator(
     play: Play
 ): PerformanceCalculator {
     return when (play.type) {
-        "tragedy" -> TragedyCalculator(aPerformance, play)
-        "comedy" -> ComedyCalculator(aPerformance, play)
+        "tragedy" -> TragedyCalculator(aPerformance)
+        "comedy" -> ComedyCalculator(aPerformance)
         else -> throw IllegalArgumentException("알 수 없는 장르: ${play.type}")
     }
 }
 
-class TragedyCalculator(private val aPerformance: Performance, private val play: Play) : PerformanceCalculator {
+class TragedyCalculator(private val aPerformance: Performance) : PerformanceCalculator {
     override val amount: Int
         get() {
             var result = 40000
@@ -26,7 +26,7 @@ class TragedyCalculator(private val aPerformance: Performance, private val play:
         }
 }
 
-class ComedyCalculator(private val aPerformance: Performance, private val play: Play) : PerformanceCalculator {
+class ComedyCalculator(private val aPerformance: Performance) : PerformanceCalculator {
 
     override val amount: Int
         get() {
