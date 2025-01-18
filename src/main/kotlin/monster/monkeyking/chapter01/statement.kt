@@ -21,7 +21,10 @@ fun statement(invoice: Invoice, plays: Plays): String {
     var totalAmount = 0
     var volumeCredits = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
-    val format = { amount: Int -> "$${amount / 100}.00" }
+
+    fun format(aNumber: Int): String {
+        return "$${aNumber / 100}.00"
+    }
 
     fun playFor(aPerformance: Performance): Play {
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
