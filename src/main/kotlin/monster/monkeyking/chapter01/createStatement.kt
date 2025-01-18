@@ -1,5 +1,12 @@
 package monster.monkeyking.chapter01
 
+fun createPerformanceCalculator(
+    aPerformance: Performance,
+    play: Play
+): PerformanceCalculator {
+    return PerformanceCalculator(aPerformance, play)
+}
+
 class PerformanceCalculator(
     private val aPerformance: Performance,
     private val play: Play
@@ -52,7 +59,7 @@ fun createStatementData(
     }
 
     fun enrichPerformance(aPerformance: Performance): PerformanceContext {
-        val performanceCalculator = PerformanceCalculator(aPerformance, playFor(aPerformance))
+        val performanceCalculator = createPerformanceCalculator(aPerformance, playFor(aPerformance))
 
         return PerformanceContext(
             play = playFor(aPerformance),
