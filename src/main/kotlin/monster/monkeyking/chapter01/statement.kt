@@ -72,20 +72,11 @@ fun statement(invoice: Invoice, plays: Plays): String {
     }
 
     fun totalAmount(data: List<PerformanceContext>): Int {
-        var totalAmount = 0
-        for (perf in data) {
-            totalAmount += perf.amount
-        }
-        return totalAmount
+        return data.sumOf { it.amount }
     }
 
     fun totalVolumeCredits(data: List<PerformanceContext>): Int {
-        var result = 0
-        for (perf in data) {
-            // 포인트를 적립한다.
-            result += perf.volumeCredits
-        }
-        return result
+        return data.sumOf { it.volumeCredits }
     }
 
     fun enrichPerformance(aPerformance: Performance): PerformanceContext {

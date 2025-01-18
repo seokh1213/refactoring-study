@@ -377,3 +377,6 @@ fun statement(invoice: Invoice, plays: Plays): String {
 
 ### 단계 쪼개기 (책임 분리하기)
 데이터 처리 -> HTML 출력
+
+### 반복문을 파이프라인으로 바꾸기 (함수형 프로그래밍)
+
