@@ -26,16 +26,15 @@ fun statement(invoice: Invoice, plays: Plays ): String {
     val format = { amount: Int -> "$${amount / 100}.00" }
 
     for (perf in invoice.performances) {
-        val play = plays.plays[perf.playID] ?: error("알 수 없는 장르: ${perf.playID}")
-        val thisAmount = amountFor(perf, play)
+        val thisAmount = amountFor(perf, plays.playFor(perf))
 
         // 포인트를 적립한다.
         volumeCredits += maxOf(perf.audience - 30, 0)
         // 희극 관객 5명마다 추가 포인트를 적립한다.
-        if ("comedy" == play.type) volumeCredits += perf.audience / 5
+        if ("comedy" == plays.playFor(perf).type) volumeCredits += perf.audience / 5
 
         // 청구 내역을 출력한다.
-        result += "  ${play.name}: ${format(thisAmount)} (${perf.audience}석)\n"
+        result += "  ${plays.playFor(perf).name}: ${format(thisAmount)} (${perf.audience}석)\n"
         totalAmount += thisAmount
     }
 
@@ -44,25 +43,29 @@ fun statement(invoice: Invoice, plays: Plays ): String {
     return result
 }
 
-fun amountFor(perf: Performance, play: Play): Int {
-    var thisAmount = 0
+fun amountFor(aPerformance: Performance, play: Play): Int {
+    var result = 0
     when (play.type) {
         "tragedy" -> {
-            thisAmount = 40000
-            if (perf.audience > 30) {
-                thisAmount += 1000 * (perf.audience - 30)
+            result = 40000
+            if (aPerformance.audience > 30) {
+                result += 1000 * (aPerformance.audience - 30)
             }
         }
         "comedy" -> {
-            thisAmount = 30000
-            if (perf.audience > 20) {
-                thisAmount += 10000 + 500 * (perf.audience - 20)
+            result = 30000
+            if (aPerformance.audience > 20) {
+                result += 10000 + 500 * (aPerformance.audience - 20)
             }
-            thisAmount += 300 * perf.audience
+            result += 300 * aPerformance.audience
         }
         else -> error("알 수 없는 장르: ${play.type}")
     }
-    return thisAmount
+    return result
+}
+
+fun Plays.playFor(aPerformance: Performance): Play {
+    return this.plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
 }
 
 fun main() {

@@ -124,3 +124,70 @@ fun amountFor(perf: Performance, play: Play): Int {
 > 리팩터링은 프로그램 수정을 작은 단계로 나눠 진행한다. 그래서 중간에 실수하더라도 버그를 쉽게 찾을 수 있다.
 > 
 > "이렇게 수정하고 나면 곧바로 컴파일하고 테스트해서 실수한 게 없는지 확인한다. 문제가 없으면 커밋 한다."
+
+#### 2. 변수명 변경
+- thisAmount -> result로 변경
+
+```kotlin
+fun amountFor(perf: Performance, play: Play): Int {
+    var result = 0
+    when (play.type) {
+        "tragedy" -> {
+            result = 40000
+            if (perf.audience > 30) {
+                result += 1000 * (perf.audience - 30)
+            }
+        }
+        "comedy" -> {
+            result = 30000
+            if (perf.audience > 20) {
+                result += 10000 + 500 * (perf.audience - 20)
+            }
+            result += 300 * perf.audience
+        }
+        else -> error("알 수 없는 장르: ${play.type}")
+    }
+    return result
+}
+```
+
+- perf -> aPerformance로 변경
+
+```kotlin
+fun amountFor(aPerformance: Performance, play: Play): Int {
+    var result = 0
+    when (play.type) {
+        "tragedy" -> {
+            result = 40000
+            if (aPerformance.audience > 30) {
+                result += 1000 * (aPerformance.audience - 30)
+            }
+        }
+        "comedy" -> {
+            result = 30000
+            if (aPerformance.audience > 20) {
+                result += 10000 + 500 * (aPerformance.audience - 20)
+            }
+            result += 300 * aPerformance.audience
+        }
+        else -> error("알 수 없는 장르: ${play.type}")
+    }
+    return result
+}
+```
+
+- play 조회 함수 분리
+```kotlin
+fun Plays.playFor(aPerformance: Performance): Play {
+    return this[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+}
+
+val play = plays.playFor(perf)
+val thisAmount = amountFor(perf, play)
+```
+
+- 변수 인라인하기
+```kotlin
+val thisAmount = amountFor(perf, plays.playFor(perf))
+```
+
