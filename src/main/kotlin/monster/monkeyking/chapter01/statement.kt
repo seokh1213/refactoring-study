@@ -37,6 +37,14 @@ data class StatementData(
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
+    val statementData = createStatementData(plays, invoice)
+    return renderPlainText(statementData)
+}
+
+private fun createStatementData(
+    plays: Plays,
+    invoice: Invoice
+): StatementData {
     fun playFor(aPerformance: Performance): Play {
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
     }
@@ -99,7 +107,8 @@ fun statement(invoice: Invoice, plays: Plays): String {
         totalAmount = totalAmount(invoice.performances.map { enrichPerformance(it) }),
         totalVolumeCredits = totalVolumeCredits(invoice.performances.map { enrichPerformance(it) })
     )
-    return renderPlainText(statementData)
+
+    return statementData
 }
 
 private fun renderPlainText(data: StatementData): String {
