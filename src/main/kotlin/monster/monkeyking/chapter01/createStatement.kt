@@ -23,9 +23,30 @@ class TragedyCalculator(private val aPerformance: Performance, private val play:
             }
             return result
         }
+    override val volumeCredits: Int
+        get() {
+            return maxOf(aPerformance.audience - 30, 0)
+        }
 }
 
-class ComedyCalculator(aPerformance: Performance, play: Play) : PerformanceCalculator(aPerformance, play)
+class ComedyCalculator(private val aPerformance: Performance, private val play: Play) :
+    PerformanceCalculator(aPerformance, play) {
+
+    override val amount: Int
+        get() {
+            var result = 30000
+            if (aPerformance.audience > 20) {
+                result += 10000 + 500 * (aPerformance.audience - 20)
+            }
+            result += 300 * aPerformance.audience
+            return result
+        }
+
+    override val volumeCredits: Int
+        get() {
+            return maxOf(aPerformance.audience - 30, 0) + aPerformance.audience / 5
+        }
+}
 
 open class PerformanceCalculator(
     private val aPerformance: Performance,
@@ -40,11 +61,7 @@ open class PerformanceCalculator(
                 }
 
                 "comedy" -> {
-                    result = 30000
-                    if (aPerformance.audience > 20) {
-                        result += 10000 + 500 * (aPerformance.audience - 20)
-                    }
-                    result += 300 * aPerformance.audience
+                    throw OperationNotSupportedException("오류 발생")
                 }
 
                 else -> error("알 수 없는 장르: ${play.type}")
@@ -53,8 +70,7 @@ open class PerformanceCalculator(
         }
     open val volumeCredits: Int
         get() {
-            return maxOf(aPerformance.audience - 30, 0) +
-                    if ("comedy" == play.type) aPerformance.audience / 5 else 0
+            throw OperationNotSupportedException("오류 발생")
         }
 
 }
