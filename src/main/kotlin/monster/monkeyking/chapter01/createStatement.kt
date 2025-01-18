@@ -1,5 +1,7 @@
 package monster.monkeyking.chapter01
 
+import javax.naming.OperationNotSupportedException
+
 fun createPerformanceCalculator(
     aPerformance: Performance,
     play: Play
@@ -34,10 +36,7 @@ open class PerformanceCalculator(
             var result = 0
             when (play.type) {
                 "tragedy" -> {
-                    result = 40000
-                    if (aPerformance.audience > 30) {
-                        result += 1000 * (aPerformance.audience - 30)
-                    }
+                    throw OperationNotSupportedException("오류 발생")
                 }
 
                 "comedy" -> {
