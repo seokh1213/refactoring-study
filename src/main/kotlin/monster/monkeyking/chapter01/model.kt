@@ -12,11 +12,6 @@ data class Performance(
     val audience: Int
 )
 
-data class PerformanceEnriched(
-    val play: Play,
-    val audience: Int,
-)
-
 data class PerformanceContext(
     val play: Play,
     val audience: Int,
