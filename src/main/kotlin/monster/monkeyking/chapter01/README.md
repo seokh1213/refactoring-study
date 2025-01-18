@@ -120,3 +120,6 @@ fun amountFor(perf: Performance, play: Play): Int {
     return thisAmount
 }
 ```
+
+> 이렇게 수정하고 나면 곧바로 컴파일하고 테스트해서 실수한 게 없는지 확인한다. <br/>
+> 리팩터링은 프로그램 수정을 작은 단계로 나눠 진행한다. 그래서 중간에 실수하더라도 버그를 쉽게 찾을 수 있다.

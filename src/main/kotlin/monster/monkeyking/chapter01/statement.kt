@@ -27,24 +27,7 @@ fun statement(invoice: Invoice, plays: Plays ): String {
 
     for (perf in invoice.performances) {
         val play = plays.plays[perf.playID] ?: error("알 수 없는 장르: ${perf.playID}")
-        var thisAmount = 0
-
-        when (play.type) {
-            "tragedy" -> {
-                thisAmount = 40000
-                if (perf.audience > 30) {
-                    thisAmount += 1000 * (perf.audience - 30)
-                }
-            }
-            "comedy" -> {
-                thisAmount = 30000
-                if (perf.audience > 20) {
-                    thisAmount += 10000 + 500 * (perf.audience - 20)
-                }
-                thisAmount += 300 * perf.audience
-            }
-            else -> error("알 수 없는 장르: ${play.type}")
-        }
+        val thisAmount = amountFor(perf, play)
 
         // 포인트를 적립한다.
         volumeCredits += maxOf(perf.audience - 30, 0)
@@ -59,6 +42,27 @@ fun statement(invoice: Invoice, plays: Plays ): String {
     result += "총액: ${format(totalAmount)}\n"
     result += "적립 포인트: $volumeCredits 점\n"
     return result
+}
+
+fun amountFor(perf: Performance, play: Play): Int {
+    var thisAmount = 0
+    when (play.type) {
+        "tragedy" -> {
+            thisAmount = 40000
+            if (perf.audience > 30) {
+                thisAmount += 1000 * (perf.audience - 30)
+            }
+        }
+        "comedy" -> {
+            thisAmount = 30000
+            if (perf.audience > 20) {
+                thisAmount += 10000 + 500 * (perf.audience - 20)
+            }
+            thisAmount += 300 * perf.audience
+        }
+        else -> error("알 수 없는 장르: ${play.type}")
+    }
+    return thisAmount
 }
 
 fun main() {
