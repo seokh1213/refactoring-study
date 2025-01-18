@@ -27,7 +27,11 @@ class PerformanceCalculator(
             }
             return result
         }
-
+    val volumeCredits: Int
+        get() {
+            return maxOf(aPerformance.audience - 30, 0) +
+                    if ("comedy" == play.type) aPerformance.audience / 5 else 0
+        }
 
 }
 
@@ -37,13 +41,6 @@ fun createStatementData(
 ): StatementData {
     fun playFor(aPerformance: Performance): Play {
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
-    }
-
-    fun volumeCreditsFor(aPerformance: PerformanceEnriched): Int {
-        var result = 0
-        result += maxOf(aPerformance.audience - 30, 0)
-        if ("comedy" == aPerformance.play.type) result += aPerformance.audience / 5
-        return result
     }
 
     fun totalAmount(data: List<PerformanceContext>): Int {
@@ -56,16 +53,12 @@ fun createStatementData(
 
     fun enrichPerformance(aPerformance: Performance): PerformanceContext {
         val performanceCalculator = PerformanceCalculator(aPerformance, playFor(aPerformance))
-        val aPerformanceEnriched = PerformanceEnriched(
-            play = playFor(aPerformance),
-            audience = aPerformance.audience
-        )
 
         return PerformanceContext(
             play = playFor(aPerformance),
             audience = aPerformance.audience,
             amount = performanceCalculator.amount,
-            volumeCredits = volumeCreditsFor(aPerformanceEnriched)
+            volumeCredits = performanceCalculator.volumeCredits
         )
     }
 
