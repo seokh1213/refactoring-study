@@ -12,6 +12,11 @@ data class Performance(
     val audience: Int
 )
 
+data class PerformanceEnriched(
+    val play: Play,
+    val audience: Int
+)
+
 data class Invoice(
     val customer: String,
     val performances: List<Performance>
@@ -19,31 +24,38 @@ data class Invoice(
 
 data class StatementData(
     val customer: String,
-    val performances: List<Performance>,
+    val performances: List<PerformanceEnriched>,
     val plays: Plays
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    val statementData = StatementData(
-        customer = invoice.customer,
-        performances = invoice.performances,
-        plays = plays
-    )
-    return renderPlainText(statementData, plays)
-}
-
-private fun renderPlainText(data: StatementData, plays: Plays): String {
-    fun usd(aNumber: Int): String {
-        return "$${aNumber / 100}.00"
-    }
-
     fun playFor(aPerformance: Performance): Play {
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
     }
 
-    fun amountFor(aPerformance: Performance): Int {
+    fun enrichPerformance(aPerformance: Performance): PerformanceEnriched {
+        return PerformanceEnriched(
+            play = playFor(aPerformance),
+            audience = aPerformance.audience
+        )
+    }
+
+    val statementData = StatementData(
+        customer = invoice.customer,
+        performances = invoice.performances.map { enrichPerformance(it) },
+        plays = plays
+    )
+    return renderPlainText(statementData)
+}
+
+private fun renderPlainText(data: StatementData): String {
+    fun usd(aNumber: Int): String {
+        return "$${aNumber / 100}.00"
+    }
+
+    fun amountFor(aPerformance: PerformanceEnriched): Int {
         var result = 0
-        when (playFor(aPerformance).type) {
+        when (aPerformance.play.type) {
             "tragedy" -> {
                 result = 40000
                 if (aPerformance.audience > 30) {
@@ -59,15 +71,15 @@ private fun renderPlainText(data: StatementData, plays: Plays): String {
                 result += 300 * aPerformance.audience
             }
 
-            else -> error("알 수 없는 장르: ${playFor(aPerformance).type}")
+            else -> error("알 수 없는 장르: ${aPerformance.play.type}")
         }
         return result
     }
 
-    fun volumeCreditsFor(aPerformance: Performance): Int {
+    fun volumeCreditsFor(aPerformance: PerformanceEnriched): Int {
         var result = 0
         result += maxOf(aPerformance.audience - 30, 0)
-        if ("comedy" == playFor(aPerformance).type) result += aPerformance.audience / 5
+        if ("comedy" == aPerformance.play.type) result += aPerformance.audience / 5
         return result
     }
 
@@ -91,7 +103,7 @@ private fun renderPlainText(data: StatementData, plays: Plays): String {
     var result = "청구 내역 (고객명: ${data.customer})\n"
     for (perf in data.performances) {
         // 청구 내역을 출력한다.
-        result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
+        result += "  ${perf.play.name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
     }
     result += "총액: ${usd(totalAmount())}\n"
     result += "적립 포인트: ${totalVolumeCredits()} 점\n"
