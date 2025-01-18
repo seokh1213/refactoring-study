@@ -11,7 +11,17 @@ fun createPerformanceCalculator(
     }
 }
 
-class TragedyCalculator(aPerformance: Performance, play: Play) : PerformanceCalculator(aPerformance, play)
+class TragedyCalculator(private val aPerformance: Performance, private val play: Play) :
+    PerformanceCalculator(aPerformance, play) {
+    override val amount: Int
+        get() {
+            var result = 40000
+            if (aPerformance.audience > 30) {
+                result += 1000 * (aPerformance.audience - 30)
+            }
+            return result
+        }
+}
 
 class ComedyCalculator(aPerformance: Performance, play: Play) : PerformanceCalculator(aPerformance, play)
 
@@ -19,7 +29,7 @@ open class PerformanceCalculator(
     private val aPerformance: Performance,
     private val play: Play
 ) {
-    val amount: Int
+    open val amount: Int
         get() {
             var result = 0
             when (play.type) {
@@ -42,7 +52,7 @@ open class PerformanceCalculator(
             }
             return result
         }
-    val volumeCredits: Int
+    open val volumeCredits: Int
         get() {
             return maxOf(aPerformance.audience - 30, 0) +
                     if ("comedy" == play.type) aPerformance.audience / 5 else 0
