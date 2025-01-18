@@ -39,10 +39,6 @@ fun createStatementData(
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
     }
 
-    fun amountFor(aPerformance: Performance): Int {
-        return PerformanceCalculator(aPerformance, playFor(aPerformance)).amount
-    }
-
     fun volumeCreditsFor(aPerformance: PerformanceEnriched): Int {
         var result = 0
         result += maxOf(aPerformance.audience - 30, 0)
@@ -68,7 +64,7 @@ fun createStatementData(
         return PerformanceContext(
             play = playFor(aPerformance),
             audience = aPerformance.audience,
-            amount = amountFor(aPerformance),
+            amount = performanceCalculator.amount,
             volumeCredits = volumeCreditsFor(aPerformanceEnriched)
         )
     }
