@@ -18,7 +18,6 @@ data class Invoice(
 )
 
 fun statement(invoice: Invoice, plays: Plays): String {
-    var totalAmount = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
 
     fun usd(aNumber: Int): String {
@@ -62,6 +61,10 @@ fun statement(invoice: Invoice, plays: Plays): String {
     for (perf in invoice.performances) {
         // 청구 내역을 출력한다.
         result += "  ${playFor(perf).name}: ${usd(amountFor(perf))} (${perf.audience}석)\n"
+    }
+
+    var totalAmount = 0
+    for (perf in invoice.performances) {
         totalAmount += amountFor(perf)
     }
 
