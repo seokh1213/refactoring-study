@@ -4,10 +4,18 @@ fun createPerformanceCalculator(
     aPerformance: Performance,
     play: Play
 ): PerformanceCalculator {
-    return PerformanceCalculator(aPerformance, play)
+    return when (play.type) {
+        "tragedy" -> TragedyCalculator(aPerformance, play)
+        "comedy" -> ComedyCalculator(aPerformance, play)
+        else -> throw IllegalArgumentException("알 수 없는 장르: ${play.type}")
+    }
 }
 
-class PerformanceCalculator(
+class TragedyCalculator(aPerformance: Performance, play: Play) : PerformanceCalculator(aPerformance, play)
+
+class ComedyCalculator(aPerformance: Performance, play: Play) : PerformanceCalculator(aPerformance, play)
+
+open class PerformanceCalculator(
     private val aPerformance: Performance,
     private val play: Play
 ) {
