@@ -19,7 +19,6 @@ data class Invoice(
 
 fun statement(invoice: Invoice, plays: Plays): String {
     var totalAmount = 0
-    var volumeCredits = 0
     var result = "청구 내역 (고객명: ${invoice.customer})\n"
 
     fun usd(aNumber: Int): String {
@@ -66,6 +65,7 @@ fun statement(invoice: Invoice, plays: Plays): String {
         totalAmount += amountFor(perf)
     }
 
+    var volumeCredits = 0
     for (perf in invoice.performances) {
         // 포인트를 적립한다.
         volumeCredits += volumeCreditsFor(perf)
