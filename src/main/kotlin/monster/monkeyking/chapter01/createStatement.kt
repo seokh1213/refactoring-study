@@ -44,37 +44,43 @@ fun createStatementData(
     plays: Plays,
     invoice: Invoice
 ): StatementData {
-    fun playFor(aPerformance: Performance): Play {
-        return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
+    val enrichedPerformances = invoice.performances.enrichAll {
+        plays[it.playID] ?: error("알 수 없는 장르: ${it.playID}")
     }
-
-    fun totalAmount(data: List<EnrichedPerformance>): Int {
-        return data.sumOf { it.amount }
-    }
-
-    fun totalVolumeCredits(data: List<EnrichedPerformance>): Int {
-        return data.sumOf { it.volumeCredits }
-    }
-
-    fun enrichPerformance(aPerformance: Performance): EnrichedPerformance {
-        val performanceCalculator = createPerformanceCalculator(aPerformance, playFor(aPerformance))
-
-        return EnrichedPerformance(
-            play = playFor(aPerformance),
-            audience = aPerformance.audience,
-            amount = performanceCalculator.amount,
-            volumeCredits = performanceCalculator.volumeCredits
-        )
-    }
-
-    val enrichedPerformances = invoice.performances.map { enrichPerformance(it) }
 
     val statementData = StatementData(
         customer = invoice.customer,
         performances = enrichedPerformances,
-        totalAmount = totalAmount(enrichedPerformances),
-        totalVolumeCredits = totalVolumeCredits(enrichedPerformances)
+        totalAmount = enrichedPerformances.totalAmount(),
+        totalVolumeCredits = enrichedPerformances.totalVolumeCredits()
     )
 
     return statementData
+}
+
+fun List<Performance>.enrichAll(playFor: (Performance) -> Play): EnrichedPerformances {
+    return EnrichedPerformances(map { it.enrich(playFor(it)) })
+}
+
+fun Performance.enrich(play: Play): EnrichedPerformance {
+    val performanceCalculator = createPerformanceCalculator(this, play)
+
+    return EnrichedPerformance(
+        play = play,
+        audience = audience,
+        amount = performanceCalculator.amount,
+        volumeCredits = performanceCalculator.volumeCredits
+    )
+}
+
+@JvmInline
+value class EnrichedPerformances(private val performances: List<EnrichedPerformance>) :
+    List<EnrichedPerformance> by performances {
+    fun totalAmount(): Int {
+        return performances.sumOf { it.amount }
+    }
+
+    fun totalVolumeCredits(): Int {
+        return performances.sumOf { it.volumeCredits }
+    }
 }
