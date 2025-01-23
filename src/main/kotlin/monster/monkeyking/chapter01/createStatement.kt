@@ -48,18 +48,18 @@ fun createStatementData(
         return plays[aPerformance.playID] ?: error("알 수 없는 장르: ${aPerformance.playID}")
     }
 
-    fun totalAmount(data: List<PerformanceContext>): Int {
+    fun totalAmount(data: List<EnrichedPerformance>): Int {
         return data.sumOf { it.amount }
     }
 
-    fun totalVolumeCredits(data: List<PerformanceContext>): Int {
+    fun totalVolumeCredits(data: List<EnrichedPerformance>): Int {
         return data.sumOf { it.volumeCredits }
     }
 
-    fun enrichPerformance(aPerformance: Performance): PerformanceContext {
+    fun enrichPerformance(aPerformance: Performance): EnrichedPerformance {
         val performanceCalculator = createPerformanceCalculator(aPerformance, playFor(aPerformance))
 
-        return PerformanceContext(
+        return EnrichedPerformance(
             play = playFor(aPerformance),
             audience = aPerformance.audience,
             amount = performanceCalculator.amount,
@@ -67,11 +67,13 @@ fun createStatementData(
         )
     }
 
+    val enrichedPerformances = invoice.performances.map { enrichPerformance(it) }
+
     val statementData = StatementData(
         customer = invoice.customer,
-        performances = invoice.performances.map { enrichPerformance(it) },
-        totalAmount = totalAmount(invoice.performances.map { enrichPerformance(it) }),
-        totalVolumeCredits = totalVolumeCredits(invoice.performances.map { enrichPerformance(it) })
+        performances = enrichedPerformances,
+        totalAmount = totalAmount(enrichedPerformances),
+        totalVolumeCredits = totalVolumeCredits(enrichedPerformances)
     )
 
     return statementData

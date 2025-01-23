@@ -17,7 +17,7 @@ data class Performance(
     val audience: Int
 )
 
-data class PerformanceContext(
+data class EnrichedPerformance(
     val play: Play,
     val audience: Int,
     val amount: Int,
@@ -31,7 +31,7 @@ data class Invoice(
 
 data class StatementData(
     val customer: String,
-    val performances: List<PerformanceContext>,
+    val performances: List<EnrichedPerformance>,
     val totalAmount: Int,
     val totalVolumeCredits: Int,
 )
