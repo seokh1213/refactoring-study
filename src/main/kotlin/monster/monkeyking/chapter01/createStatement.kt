@@ -7,7 +7,9 @@ fun createPerformanceCalculator(aPerformance: Performance, play: Play): Performa
     }
 }
 
-class TragedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
+class TragedyCalculator(aPerformance: Performance) : PerformanceCalculator {
+    override val volumeCredits: Int = aPerformance.audience.coerceAtLeast(0) - 30
+
     override val amount: Int = run {
         val baseAmount = 40000
         val extraAmount = if (aPerformance.audience > 30) 1000 * (aPerformance.audience - 30) else 0
@@ -16,25 +18,20 @@ class TragedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerf
     }
 }
 
-class ComedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
+class ComedyCalculator(aPerformance: Performance) : PerformanceCalculator {
+    override val volumeCredits: Int = aPerformance.audience.coerceAtLeast(0) - 30 + aPerformance.audience / 5
+
     override val amount: Int = run {
         val baseAmount = 30000 + 300 * aPerformance.audience
         val extraAmount = if (aPerformance.audience > 20) 10000 + 500 * (aPerformance.audience - 20) else 0
 
         return@run baseAmount + extraAmount
     }
-
-    override val volumeCredits: Int = run {
-        super.volumeCredits + aPerformance.audience / 5
-    }
 }
 
-sealed class PerformanceCalculator(protected open val aPerformance: Performance) {
-    abstract val amount: Int
-    open val volumeCredits: Int
-        get() {
-            return maxOf(aPerformance.audience - 30, 0)
-        }
+interface PerformanceCalculator {
+    val amount: Int
+    val volumeCredits: Int
 }
 
 fun createStatementData(plays: Plays, invoice: Invoice): StatementData {
