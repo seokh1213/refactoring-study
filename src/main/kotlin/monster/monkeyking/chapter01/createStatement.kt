@@ -12,13 +12,19 @@ fun createPerformanceCalculator(
 
 class TragedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
     override val amount: Int = run {
-        40000 + if (aPerformance.audience > 30) 1000 * (aPerformance.audience - 30) else 0
+        val baseAmount = 40000
+        val extraAmount = if (aPerformance.audience > 30) 1000 * (aPerformance.audience - 30) else 0
+
+        return@run baseAmount + extraAmount
     }
 }
 
 class ComedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
     override val amount: Int = run {
-        30000 + 300 * aPerformance.audience + if (aPerformance.audience > 20) 10000 + 500 * (aPerformance.audience - 20) else 0
+        val baseAmount = 30000 + 300 * aPerformance.audience
+        val extraAmount = if (aPerformance.audience > 20) 10000 + 500 * (aPerformance.audience - 20) else 0
+
+        return@run baseAmount + extraAmount
     }
 
     override val volumeCredits: Int = run {
