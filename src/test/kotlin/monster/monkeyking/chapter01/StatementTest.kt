@@ -7,9 +7,9 @@ class StatementTest {
     @Test
     fun checkRenderHtml() {
         val plays: Plays = mapOf(
-            "hamlet" to Play("Hamlet", "tragedy"),
-            "as-like" to Play("As You Like It", "comedy"),
-            "othello" to Play("Othello", "tragedy")
+            "hamlet" to Play("Hamlet", PlayType.TRAGEDY),
+            "as-like" to Play("As You Like It", PlayType.COMEDY),
+            "othello" to Play("Othello", PlayType.TRAGEDY)
         )
 
         val invoice = Invoice(
@@ -58,9 +58,9 @@ class StatementTest {
     @Test
     fun checkRenderPlainText() {
         val plays: Plays = mapOf(
-            "hamlet" to Play("Hamlet", "tragedy"),
-            "as-like" to Play("As You Like It", "comedy"),
-            "othello" to Play("Othello", "tragedy")
+            "hamlet" to Play("Hamlet", PlayType.TRAGEDY),
+            "as-like" to Play("As You Like It", PlayType.COMEDY),
+            "othello" to Play("Othello", PlayType.TRAGEDY)
         )
 
         val invoice = Invoice(

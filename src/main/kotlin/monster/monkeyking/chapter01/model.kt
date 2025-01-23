@@ -2,9 +2,14 @@ package monster.monkeyking.chapter01
 
 typealias Plays = Map<String, Play>
 
+enum class PlayType {
+    TRAGEDY,
+    COMEDY
+}
+
 data class Play(
     val name: String,
-    val type: String
+    val type: PlayType
 )
 
 data class Performance(

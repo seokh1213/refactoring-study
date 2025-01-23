@@ -5,9 +5,8 @@ fun createPerformanceCalculator(
     play: Play
 ): PerformanceCalculator {
     return when (play.type) {
-        "tragedy" -> TragedyCalculator(aPerformance)
-        "comedy" -> ComedyCalculator(aPerformance)
-        else -> throw IllegalArgumentException("알 수 없는 장르: ${play.type}")
+        PlayType.TRAGEDY -> TragedyCalculator(aPerformance)
+        PlayType.COMEDY -> ComedyCalculator(aPerformance)
     }
 }
 
