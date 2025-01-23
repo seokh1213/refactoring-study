@@ -10,33 +10,20 @@ fun createPerformanceCalculator(
     }
 }
 
-class TragedyCalculator(override val aPerformance: Performance) : PerformanceCalculator(aPerformance) {
-    override val amount: Int
-        get() {
-            var result = 40000
-            if (aPerformance.audience > 30) {
-                result += 1000 * (aPerformance.audience - 30)
-            }
-            return result
-        }
+class TragedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
+    override val amount: Int = run {
+        40000 + if (aPerformance.audience > 30) 1000 * (aPerformance.audience - 30) else 0
+    }
 }
 
-class ComedyCalculator(override val aPerformance: Performance) : PerformanceCalculator(aPerformance) {
+class ComedyCalculator(aPerformance: Performance) : PerformanceCalculator(aPerformance) {
+    override val amount: Int = run {
+        30000 + 300 * aPerformance.audience + if (aPerformance.audience > 20) 10000 + 500 * (aPerformance.audience - 20) else 0
+    }
 
-    override val amount: Int
-        get() {
-            var result = 30000
-            if (aPerformance.audience > 20) {
-                result += 10000 + 500 * (aPerformance.audience - 20)
-            }
-            result += 300 * aPerformance.audience
-            return result
-        }
-
-    override val volumeCredits: Int
-        get() {
-            return super.volumeCredits + aPerformance.audience / 5
-        }
+    override val volumeCredits: Int = run {
+        super.volumeCredits + aPerformance.audience / 5
+    }
 }
 
 sealed class PerformanceCalculator(protected open val aPerformance: Performance) {
