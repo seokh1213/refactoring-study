@@ -1,9 +1,6 @@
 package monster.monkeyking.chapter01
 
-fun createPerformanceCalculator(
-    aPerformance: Performance,
-    play: Play
-): PerformanceCalculator {
+fun createPerformanceCalculator(aPerformance: Performance, play: Play): PerformanceCalculator {
     return when (play.type) {
         PlayType.TRAGEDY -> TragedyCalculator(aPerformance)
         PlayType.COMEDY -> ComedyCalculator(aPerformance)
@@ -40,10 +37,7 @@ sealed class PerformanceCalculator(protected open val aPerformance: Performance)
         }
 }
 
-fun createStatementData(
-    plays: Plays,
-    invoice: Invoice
-): StatementData {
+fun createStatementData(plays: Plays, invoice: Invoice): StatementData {
     val enrichedPerformances = invoice.performances.enrichAll {
         plays[it.playID] ?: error("알 수 없는 장르: ${it.playID}")
     }
